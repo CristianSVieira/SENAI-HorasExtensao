@@ -1,1 +1,0 @@
-#pensei em fazer o status utilizando enums

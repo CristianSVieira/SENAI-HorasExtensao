@@ -1,1 +1,0 @@
-#hash e jwt token vai ficar por aqui, to com preguica, faz ai mano
