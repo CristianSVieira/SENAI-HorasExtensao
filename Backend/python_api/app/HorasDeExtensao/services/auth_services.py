@@ -1,1 +1,0 @@
-#funcoes de login,regitsro etc.
