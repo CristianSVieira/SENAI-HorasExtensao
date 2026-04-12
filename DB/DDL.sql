@@ -40,8 +40,9 @@ create table tipo_usuario(
 create table usuario(
 	#identificação em uuid pela quantidade de pessoas possíveis a longo prazo
 	id char(36) primary key default (UUID()),
-    id_tipo_usuario int not null,
-		foreign key (id_tipo_usuario) references tipo_usuario(id),
+	
+    role ENUM('Aluno', 'Docente', 'Administrador') NOT NULL,
+    
     nome varchar(255) not null, #Obrigatório
     email varchar(255) not null unique, #Obrigatório
     telefone char(11) null unique, # Talvez não
@@ -79,8 +80,7 @@ create table solicitacao_horas_aluno(
     id_projeto char(36) not null,
     	foreign key (id_projeto) references projeto(id),
         
-    id_status int unsigned not null,
-		foreign key (id_status) references status_horas(id),
+    status ENUM('Pendente', 'Validade', 'Negado') NOT NULL,
         
     id_aluno char(36) not null,
 		foreign key (id_aluno) references aluno(id_usuario),
