@@ -1,2 +1,6 @@
-fastapi~=0.135.3
+fastapi
+uvicorn[standard]
 sqlalchemy
+pymysql
+cryptography
+python-multipart
