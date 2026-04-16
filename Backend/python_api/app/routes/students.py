@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from database import get_db
+from database import get_session
 from services.students_service import get_progresso_aluno
 
 router = APIRouter(prefix="/students", tags=["students"])
