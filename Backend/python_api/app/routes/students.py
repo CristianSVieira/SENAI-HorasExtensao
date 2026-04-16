@@ -16,10 +16,6 @@ async def get_all_requests(id:int):
 async def get_request_by_idt(id:int):
     return {"request": id}
 
-@router.get("/hours")
-async def get_hours():
-    return {"requests": "status"}
-
 @router.get("/{id_aluno}/progress")
 def progresso_aluno(id_aluno: int, db: Session = Depends(get_db)):
     return get_progresso_aluno(id_aluno, db)
