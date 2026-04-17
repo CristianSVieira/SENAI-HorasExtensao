@@ -1,14 +1,14 @@
 from fastapi import APIRouter
-from app.connection import get_db_connection
+from database.connection import get_db_connection
 
 router = APIRouter(prefix="/admin", tags=["Administração"])
 
-@router.get("/relatorios")
-def get_reports():
+@router.get("/horas/aluno")
+def get_solicitacao_horas_aluno():
     db = get_db_connection()
     cursor = db.cursor(dictionary=True)
     try:
-        cursor.execute("SELECT count(*) as total FROM horas_extensao")
+        cursor.execute("SELECT count(*) as total FROM solicitacao_horas_aluno")
         return cursor.fetchone()
     finally:
         cursor.close()

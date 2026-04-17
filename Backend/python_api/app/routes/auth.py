@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from app.connection import get_db_connection
+from database.connection import get_db_connection
 
 router = APIRouter(prefix="/auth", tags=["Autenticação"])
 
@@ -9,7 +9,7 @@ def login(dados: dict):
     cursor = db.cursor(dictionary=True)
     try:
         # Exemplo de lógica de login
-        cursor.execute("SELECT * FROM usuarios WHERE email = %s", (dados['email'],))
+        cursor.execute("SELECT * FROM usuario WHERE email = %s", (dados['email'],))
         user = cursor.fetchone()
         if not user:
             raise HTTPException(status_code=401, detail="Usuário não encontrado")
