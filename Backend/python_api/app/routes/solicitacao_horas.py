@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from datetime import datetime
 from database.connection import get_db_connection
 from schemas.solicitacao_horas import SolicitacaoRequest
@@ -33,8 +33,8 @@ def criar_solicitacao(data: SolicitacaoRequest):
 
         return {"message": "Solicitação criada com sucesso"}
 
-    except Exception as e:
-        return {"error": str(e)}
+    except Exception :
+        raise HTTPException(status_code=500, detail= "Erro ao criar a solicitação")
 
     finally:
         cursor.close()
