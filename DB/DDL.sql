@@ -55,7 +55,7 @@ create table usuario(
 create table projeto(
 	id char(36) primary key default (UUID()),
     id_docente char(36) not null,
-		foreign key (id_docente) references docente(id_usuario),
+		foreign key (id_docente) references usuario(id),
         
     id_curso char(36) not null,
 		foreign key (id_curso) references curso(id),
@@ -83,7 +83,7 @@ create table solicitacao_horas_aluno(
     status ENUM('Pendente', 'Validade', 'Negado') NOT NULL,
         
     id_aluno char(36) not null,
-		foreign key (id_aluno) references aluno(id_usuario),
+		foreign key (id_aluno) references usuario(id),
     
     data_postagem DateTime not null,
     # Talvez haja a necessidade de horas adicionais ou subtraídas do total em circunstâncias especiais
