@@ -1,41 +1,9 @@
-from fastapi import APIRouter, HTTPException
-from datetime import datetime
-from database.connection import get_db_connection
+from fastapi import APIRouter
 from schemas.solicitacao_horas import SolicitacaoRequest
-import uuid
+from services.solicitacao_horas_services import criar_solicitacao_service
 
 router = APIRouter(prefix="/solicitacoes", tags=["Solicitações"])
 
 @router.post("")
 def criar_solicitacao(data: SolicitacaoRequest):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    try:
-        query = """
-        INSERT INTO solicitacao_horas_aluno
-        (id, id_projeto, status, id_aluno, data_postagem, comprovante, observacao_aluno)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """
-
-        values = (
-            str(uuid.uuid4()),
-            data.id_projeto,
-            "Pendente",
-            data.id_aluno,
-            datetime.now(),
-            data.comprovante,
-            data.observacao_aluno
-        )
-
-        cursor.execute(query, values)
-        conn.commit()
-
-        return {"message": "Solicitação criada com sucesso"}
-
-    except Exception :
-        raise HTTPException(status_code=500, detail= "Erro ao criar a solicitação")
-
-    finally:
-        cursor.close()
-        conn.close()
+    return criar_solicitacao_service(data)
