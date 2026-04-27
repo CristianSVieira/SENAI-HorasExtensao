@@ -1,7 +1,7 @@
 from app.database.connection import get_db_connection
 from fastapi import HTTPException, status
 from typing import List, Optional, Dict, Any
-from app.schemas.for_projects import ProjetoCreate, ProjetoUpdate
+from app.schemas.for_projects import ProjetoCreate, ProjetoUpdate, ProjetoDelete
 
 def listar_projetos(id_curso: Optional[str] = None) -> List[Dict[str, Any]]:
     db = get_db_connection()
@@ -9,58 +9,60 @@ def listar_projetos(id_curso: Optional[str] = None) -> List[Dict[str, Any]]:
     try:
         if id_curso is not None:
             cursor.execute("SELECT * FROM projeto WHERE id_curso = %s", (id_curso,))
-        else:
-            cursor.execute("SELECT * FROM projeto")
         result = cursor.fetchall()
         return result
     finally:
         cursor.close()
         db.close()
 
-def cadastrar_projeto(dados: ProjetoCreate, id_docente: str) -> Dict[str, str]:
+def listar_projeto_por_id(id: str):
+    db = get_db_connection()
+    cursor = db.cursor(dictionary=True)
+    try:
+        if id is not None:
+            cursor.execute("SELECT * FROM projeto WHERE id = %s", (id,))
+        return cursor.fetchone()
+    except Exception as e:
+        raise Exception("O projeto não foi encontrado")
+    finally:
+        cursor.close()
+        db.close()
+
+def cadastrar_projeto(dados: ProjetoCreate) -> Dict[str, str]:
     db = get_db_connection()
     cursor = db.cursor()
     try:
         cursor.execute("""
             INSERT INTO projeto (id_docente, id_curso, titulo, descricao, horas_previstas)
             VALUES (%s, %s, %s, %s, %s)
-        """, (id_docente, dados.id_curso, dados.titulo, dados.descricao, dados.horas_previstas))
+        """, (dados.id_docente, dados.id_curso, dados.titulo, dados.descricao, dados.horas_previstas))
         db.commit()
         return {"message": "Projeto cadastrado com sucesso"}
     except Exception as e:
         db.rollback()
-        raise Exception(f"Erro ao cadastrar: {str(e)}")    
+        raise Exception(f"Erro ao cadastrar: {str(e)}")
     finally:
         cursor.close()
         db.close()
 
-def excluir_projeto(projeto_id: str) -> Dict[str, str]:
+def excluir_projeto(dados: ProjetoDelete) -> Dict[str, str]:
     db = get_db_connection()
     cursor = db.cursor(dictionary=True)
     try:
-        cursor.execute("SELECT id FROM projeto WHERE id = %s", (projeto_id,))
-        if not cursor.fetchone():
-            raise HTTPException(status_code=404, detail="Projeto não encontrado.")
-
-        cursor.execute("SELECT 1 FROM solicitacao_horas_aluno WHERE id_projeto = %s LIMIT 1", (projeto_id,))
-        if cursor.fetchone():
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Exclusão bloqueada: Este projeto possui solicitações vinculadas."
-            )
-
-        cursor.execute("DELETE FROM projeto WHERE id = %s", (projeto_id,))
+        cursor.execute("DELETE FROM projeto WHERE id = %s", (dados.id,))
         db.commit()
         return {"message": "Projeto excluído com sucesso."}
+    except Exception as e:
+        raise Exception(f"Erro ao excluir: {str(e)}")
     finally:
         cursor.close()
         db.close()
 
-def editar_projeto(projeto_id: str, dados: ProjetoUpdate) -> Optional[Dict[str, str]]:
+def editar_projeto(dados: ProjetoUpdate) -> Optional[Dict[str, str]]:
     db = get_db_connection()
     cursor = db.cursor(dictionary=True)
     try:
-        cursor.execute("SELECT * FROM projeto WHERE id = %s", (projeto_id,))
+        cursor.execute("SELECT * FROM projeto WHERE id = %s", (dados.id,))
         projeto_atual = cursor.fetchone()
         
         if not projeto_atual:
@@ -75,7 +77,7 @@ def editar_projeto(projeto_id: str, dados: ProjetoUpdate) -> Optional[Dict[str, 
             UPDATE projeto 
             SET titulo=%s, descricao=%s, horas_previstas=%s, id_curso=%s
             WHERE id = %s
-        """, (novo_titulo, nova_descricao, novas_horas, novo_curso, projeto_id))
+        """, (novo_titulo, nova_descricao, novas_horas, novo_curso, dados.id))
         
         db.commit()
         return {"message": "Projeto atualizado com sucesso"}
