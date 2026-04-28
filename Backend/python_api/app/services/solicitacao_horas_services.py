@@ -35,3 +35,27 @@ def criar_solicitacao_service(data):
     finally:
         cursor.close()
         conn.close()
+
+def listar_solicitacoes(id_aluno: str):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    try:
+        query = """
+        SELECT *
+        FROM solicitacao_horas_aluno
+        WHERE id_aluno = %s
+        ORDER BY data_postagem DESC
+        """
+
+        cursor.execute(query, (id_aluno,))
+        solicitacoes = cursor.fetchall()
+
+        return solicitacoes
+
+    except Exception:
+        raise HTTPException(status_code=500, detail="Erro ao buscar as solicitações.")
+
+    finally:
+        cursor.close()
+        conn.close()
