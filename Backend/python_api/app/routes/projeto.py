@@ -36,16 +36,16 @@ def excluir(id: str = None):
     try:
         projeto_por_id = service.listar_projeto_por_id(id=id)
     except Exception as e:
-        raise HTTPException(status_code=400, detail="Projeto não encontrado")
+        raise HTTPException(status_code=404, detail="Projeto não encontrado")
 
     # Se sim, verifica-se se ele pode ser encontrado nas solicitações de horas
     if sh_service.listar_qualquer_solicitacao_para_projeto(id) is not None:
-        raise HTTPException(status_code=404, detail="Existe uma solitação de horas pendente para este projeto e não pode ser excluído até que se resolva.")
+        raise HTTPException(status_code=400, detail="Existe uma solitação de horas pendente para este projeto e não pode ser excluído até que se resolva.")
     else:
         try:
             return service.excluir_projeto(id) # Retorno em caso de sucesso
         except Exception as e:
-            raise HTTPException(status_code=404, detail="O projeto não pôde ser excluído")
+            raise HTTPException(status_code=500, detail="O projeto não pôde ser excluído")
 
 @router.put("/{id}", status_code=status.HTTP_200_OK)
 def editar(id:str, project_data: ProjetoUpdate):
