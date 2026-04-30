@@ -7,11 +7,11 @@ ALGORITHM = "HS256"
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def verificar_senha(senha_plana, senha_do_banco):
-    # Compara a senha digitada com o hash da coluna 'senha'
+    # Compara a senha enviada com o hash da coluna 'senha'
     return pwd_context.verify(senha_plana, senha_do_banco)
 
 def criar_token_acesso(dados: dict):
     para_codificar = dados.copy()
-    expira = datetime.utcnow() + timedelta(minutes=480) # 8 horas
+    expira = datetime.utcnow() + timedelta(minutes=480)
     para_codificar.update({"exp": expira})
     return jwt.encode(para_codificar, SECRET_KEY, algorithm=ALGORITHM)

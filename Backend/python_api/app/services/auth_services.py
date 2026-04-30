@@ -4,7 +4,7 @@ from fastapi import HTTPException
 def realizar_login_service(db, cpf, senha):
     cursor = db.cursor(dictionary=True)
     try:
-        # Query correta conforme o banco e o revisor
+        # Query com JOIN para identificar se a role é Aluno ou Docente 
         query = """
             SELECT u.id, u.senha, t.nome as role 
             FROM usuario u
@@ -17,12 +17,16 @@ def realizar_login_service(db, cpf, senha):
         if not user or not verificar_senha(senha, user['senha']):
             raise HTTPException(status_code=401, detail="CPF ou Senha incorretos")
 
-        # Gerar o token com UUID (id) e perfil (role)
+        # O token carrega o UUID (sub) e a role (Aluno/Docente)
         token = criar_token_acesso(dados={
             "sub": str(user['id']), 
             "role": user['role']
         })
 
-        return {"access_token": token, "token_type": "bearer"}
+        return {
+            "access_token": token, 
+            "token_type": "bearer",
+            "role": user['role']
+        }
     finally:
         cursor.close()
