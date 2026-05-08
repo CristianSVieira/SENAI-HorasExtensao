@@ -1,22 +1,39 @@
 from app.database.connection import get_db_connection
-from fastapi import HTTPException, status
 from typing import List, Optional, Dict, Any
 from app.schemas.for_projecto import ProjetoCreate, ProjetoUpdate, ProjetoDelete
 
 def listar_projetos(id_curso: Optional[str] = None) -> List[Dict[str, Any]]:
     db = get_db_connection()
     cursor = db.cursor(dictionary=True)
+
     try:
-        if id_curso is not None:
-            cursor.execute("SELECT * FROM projeto WHERE id_curso = %s", (id_curso,))
-        result = cursor.fetchall()
+        cursor.execute(
+            "SELECT * FROM curso WHERE id = %s",
+            (id_curso,)
+        )
 
-        if not result:
-            raise Exception("Nenhum projeto encontrado para este curso")
+        curso = cursor.fetchone()
 
-        return result
+        # Se não existir curso
+        if curso is None:
+            raise Exception("Curso inexistente")
+
+        cursor.execute(
+            "SELECT * FROM projeto WHERE id_curso = %s",
+            (id_curso,)
+        )
+
+        projetos = cursor.fetchall()
+
+        # Curso existe mas não possui projetos
+        if not projetos:
+            raise Exception("Curso não possui projetos cadastrados")
+
+        return projetos
+
     except Exception as e:
-        raise Exception("Este projeto não se encontra neste curso")
+        raise Exception(str(e))
+
     finally:
         cursor.close()
         db.close()

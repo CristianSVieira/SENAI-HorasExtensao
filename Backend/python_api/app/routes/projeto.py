@@ -22,11 +22,33 @@ def listar_por_id(id: str = None):
         raise HTTPException(status_code=404, detail="O projeto não foi encontrado")
 
 @router.get("/curso/{id_curso}", response_model=List[ProjetoRead])
-def listar(id_curso: str = None):
+def listar_projetos_por_curso(id_curso: str):
     try:
         return service.listar_projetos(id_curso=id_curso)
+
     except Exception as e:
-        raise HTTPException(status_code=404, detail="Nenhum projeto encontrado para este curso")
+
+        mensagem = str(e)
+
+        # Curso não existe
+        if mensagem == "Curso inexistente":
+            raise HTTPException(
+                status_code=404,
+                detail="Curso inexistente"
+            )
+
+        # Curso sem projetos
+        if mensagem == "Curso não possui projetos cadastrados":
+            raise HTTPException(
+                status_code=404,
+                detail="Curso não possui projetos cadastrados"
+            )
+
+        # Outros erros inesperados
+        raise HTTPException(
+            status_code=500,
+            detail="Erro interno ao listar projetos"
+        )
 
 @router.delete("/{id}", status_code=status.HTTP_200_OK)
 def excluir(id: str = None):
