@@ -10,7 +10,7 @@ def criar_solicitacao(data: SolicitacaoRequest):
         return criar_solicitacao_service(data)
     
     except ValueError as erro:
-        raise HTTPException(status_code= 400, detail= erro)
+        raise HTTPException(status_code= 400, detail= str(erro))
 
 @router.get("/{id_aluno}")
 def listar_solicitacoes_do_aluno(id_aluno: str):

@@ -16,8 +16,11 @@ def criar_solicitacao_service(data):
         VALUES (%s, %s, %s, %s, %s, %s, %s)
         """
 
+        # Usada para retornar o id da solicitação na response
+        id_solicitacao = str(uuid.uuid4())
+
         values = (
-            str(uuid.uuid4()),
+            id_solicitacao,
             data.id_projeto,
             "Pendente",
             data.id_aluno,
@@ -29,7 +32,13 @@ def criar_solicitacao_service(data):
         cursor.execute(query, values)
         conn.commit()
 
-        return {"message": "Solicitação criada."}
+        return {
+            "message": "Solicitação criada.",
+            "id_solicitacao": id_solicitacao
+            }
+
+    except Exception:
+        raise ValueError("Ocorreu um erro para criar a solicitação.")
 
     finally:
         cursor.close()
@@ -71,7 +80,8 @@ def aluno_existe(id_aluno: str):
         cursor.execute(query, (id_aluno,))
         aluno = cursor.fetchone()
 
-        return aluno
+        # Função boolean para validação de aluno existente
+        return aluno is not None
 
     finally:
         cursor.close()
