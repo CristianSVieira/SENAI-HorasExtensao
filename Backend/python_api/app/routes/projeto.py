@@ -9,10 +9,28 @@ router = APIRouter(prefix="/projeto", tags=["Projeto"])
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def cadastrar(project_data: ProjetoCreate):
     try:
-        # TODO: Validação do id do docente em autorização
         return service.cadastrar_projeto(project_data)
     except Exception as e:
-        raise HTTPException(status_code=400, detail="O projeto não pôde ser cadastrado")
+        mensagem = str(e)
+        
+        # Usuário não encontrado
+        if "Usuário não encontrado" in mensagem:
+            raise HTTPException(
+                status_code=404,
+                detail="Usuário não encontrado"
+            )
+        
+        # Usuário não é docente
+        if "não possui role de docente" in mensagem:
+            raise HTTPException(
+                status_code=403,
+                detail="Usuário não possui role de docente. Apenas docentes podem cadastrar projetos."
+            )
+        
+        raise HTTPException(
+            status_code=400,
+            detail="O projeto não pôde ser cadastrado"
+        )
 
 @router.get("/{id}", response_model=ProjetoRead)
 def listar_por_id(id: str = None):

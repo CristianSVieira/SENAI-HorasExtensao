@@ -61,9 +61,22 @@ def cadastrar_projeto(dados: ProjetoCreate) -> Dict[str, str]:
     cursor = db.cursor()
     try:
         cursor.execute("""
+            SELECT role FROM usuario WHERE id = %s
+        """, (dados.id_docente,))
+        
+        resultado = cursor.fetchone()
+        
+        if not resultado:
+            raise Exception("Usuário não encontrado")
+        
+        if resultado[0] != 'Docente':
+            raise Exception("Usuário não possui role de docente")
+        
+        cursor.execute("""
             INSERT INTO projeto (id_docente, id_curso, titulo, descricao, horas_previstas)
             VALUES (%s, %s, %s, %s, %s)
         """, (dados.id_docente, dados.id_curso, dados.titulo, dados.descricao, dados.horas_previstas))
+        
         db.commit()
         return {"message": "Projeto cadastrado com sucesso"}
     except Exception as e:
